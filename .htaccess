@@ -1,0 +1,45 @@
+RewriteEngine On
+RewriteBase /ict/
+
+# Disable directory browsing
+Options -Indexes
+
+# 1. Dashboard
+RewriteRule ^dashboard/?$ index.php [L]
+
+# 2. Main Modules (List View)
+RewriteRule ^renewals/?$ modules/renewals/index.php [L]
+RewriteRule ^vendors/?$ modules/vendors/index.php [L]
+RewriteRule ^hardware/?$ modules/hardware/index.php [L]
+RewriteRule ^vault/?$ modules/credentials/index.php [L]
+RewriteRule ^credentials/?$ modules/credentials/index.php [L]
+RewriteRule ^incidents/?$ modules/knowledgebase/index.php [L]
+RewriteRule ^knowledgebase/?$ modules/knowledgebase/index.php [L]
+RewriteRule ^maintenance/?$ modules/maintenance/index.php [L]
+RewriteRule ^external/?$ modules/external/index.php [L]
+RewriteRule ^procurement/?$ modules/procurement/index.php [L]
+RewriteRule ^audit/?$ modules/audit/index.php [L]
+
+# 3. Create/Add Pages
+RewriteRule ^renewals/new/?$ modules/renewals/create.php [L]
+RewriteRule ^vendors/new/?$ modules/vendors/create.php [L]
+RewriteRule ^hardware/new/?$ modules/hardware/create.php [L]
+RewriteRule ^vault/new/?$ modules/credentials/create.php [L]
+RewriteRule ^incidents/new/?$ modules/knowledgebase/create.php [L]
+RewriteRule ^maintenance/new/?$ modules/maintenance/create.php [L]
+RewriteRule ^external/new/?$ modules/external/create.php [L]
+
+# 4. Edit Pages (Passing ID)
+RewriteRule ^renewals/edit/([0-9]+)/?$ modules/renewals/edit.php?id=$1 [L,QSA]
+RewriteRule ^vendors/edit/([0-9]+)/?$ modules/vendors/edit.php?id=$1 [L,QSA]
+RewriteRule ^hardware/edit/([0-9]+)/?$ modules/hardware/edit.php?id=$1 [L,QSA]
+RewriteRule ^vault/edit/([0-9]+)/?$ modules/credentials/edit.php?id=$1 [L,QSA]
+RewriteRule ^incidents/edit/([0-9]+)/?$ modules/knowledgebase/edit.php?id=$1 [L,QSA]
+RewriteRule ^maintenance/edit/([0-9]+)/?$ modules/maintenance/edit.php?id=$1 [L,QSA]
+RewriteRule ^external/edit/([0-9]+)/?$ modules/external/edit.php?id=$1 [L,QSA]
+
+# 5. View Pages (if any)
+RewriteRule ^incidents/view/([0-9]+)/?$ modules/knowledgebase/view.php?id=$1 [L,QSA]
+
+# 6. Specific Actions
+RewriteRule ^vault/reveal/?$ modules/credentials/reveal.php [L,QSA]

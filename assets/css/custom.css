@@ -1,0 +1,398 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --primary-500: #b59454;
+    /* Dallas Premiere Gold */
+    --primary-600: #a3834a;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--slate-50);
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Glass Utilities - Original */
+.glass-dark {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* SaaS-like Card Styles - Original */
+.saas-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid rgba(241, 245, 249, 0.8);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.saas-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Timeline Original */
+.timeline-item {
+    position: relative;
+    padding-left: 28px;
+    border-left: 1px solid #e2e8f0;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -5.5px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    border: 2px solid white;
+}
+
+.timeline-item.active::before {
+    background: #6366f1;
+}
+
+/* Table Polish */
+thead tr th {
+    font-weight: 600 !important;
+    letter-spacing: 0.025em !important;
+    text-transform: uppercase;
+    color: #64748b !important;
+    font-size: 0.75rem !important;
+}
+
+tbody tr {
+    transition: background-color 0.15s;
+}
+
+tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Vibrant Aesthetics */
+.bg-mesh {
+    background-color: #f8fafc;
+    background-image:
+        radial-gradient(at 0% 0%, rgba(181, 148, 84, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(181, 148, 84, 0.08) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.06) 0px, transparent 50%);
+    background-attachment: fixed;
+}
+
+.glow-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 20px 50px -12px rgba(0, 0, 0, 0.1),
+        0 0 30px rgba(181, 148, 84, 0.05);
+}
+
+.gold-accent {
+    position: relative;
+}
+
+.gold-accent::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-500), transparent);
+    border-radius: 10px;
+}
+
+/* CMS Content Rendering */
+.prose {
+    line-height: 1.8 !important;
+    color: #334155 !important;
+}
+
+.prose p {
+    margin-bottom: 2rem !important;
+}
+
+.prose strong {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+.prose em {
+    color: #475569 !important;
+    font-style: italic !important;
+    background: linear-gradient(120deg, rgba(181, 148, 84, 0.1) 0%, rgba(181, 148, 84, 0.1) 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 0.3em;
+    background-position: 0 88%;
+    padding: 0 2px;
+}
+
+.prose u {
+    text-decoration: none !important;
+    border-bottom: 2px solid rgba(181, 148, 84, 0.3);
+    padding-bottom: 1px;
+}
+
+.prose blockquote {
+    position: relative;
+    background: #f8fafc;
+    border-left: 4px solid var(--primary-500) !important;
+    padding: 1.5rem 2rem !important;
+    margin: 3rem 0 !important;
+    border-radius: 0 1rem 1rem 0;
+    font-style: normal !important;
+    color: #475569 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.prose blockquote::before {
+    content: 'NOTE';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: var(--primary-500);
+    color: white;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+}
+
+.prose ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.prose ul {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.prose li {
+    margin-bottom: 0.75rem !important;
+}
+
+.prose .ql-align-center {
+    text-align: center;
+}
+
+.prose .ql-align-right {
+    text-align: right;
+}
+
+.prose h1,
+.prose h2,
+.prose h3 {
+    color: #0f172a !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.025em !important;
+    margin-top: 3.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.prose h1 {
+    font-size: 2.25rem !important;
+}
+
+.prose h2 {
+    font-size: 1.875rem !important;
+}
+
+.prose h3 {
+    font-size: 1.5rem !important;
+}
+
+.prose img {
+    border-radius: 2.5rem !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    border: 8px solid white !important;
+    margin: 3rem 0 !important;
+}
+
+.prose code {
+    color: var(--primary-600) !important;
+    background: rgba(181, 148, 84, 0.05) !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+}
+
+.prose code::before,
+.prose code::after {
+    content: none !important;
+}
+
+.prose pre {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+    padding: 2rem !important;
+    border-radius: 1.5rem !important;
+    overflow-x: auto !important;
+    margin: 2rem 0 !important;
+}
+
+.prose pre code {
+    color: inherit !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-weight: 400 !important;
+}
+
+/* Premium Documentation Styles */
+.quill-content {
+    font-size: 1.125rem;
+    color: #334155;
+    line-height: 1.8;
+}
+
+.quill-content h1,
+.quill-content h2,
+.quill-content h3 {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    margin-top: 2.5rem !important;
+    margin-bottom: 1.25rem !important;
+    letter-spacing: -0.02em !important;
+}
+
+.quill-content h1 {
+    font-size: 2.25rem !important;
+    border-left: 4px solid var(--primary-500);
+    padding-left: 1.25rem;
+}
+
+.quill-content h2 {
+    font-size: 1.75rem !important;
+}
+
+.quill-content h3 {
+    font-size: 1.4rem !important;
+}
+
+.quill-content p {
+    margin-bottom: 1.5rem !important;
+}
+
+.quill-content ul,
+.quill-content ol {
+    margin-bottom: 1.5rem !important;
+    padding-left: 1.5rem !important;
+}
+
+.quill-content ul {
+    list-style-type: disc !important;
+}
+
+.quill-content ol {
+    list-style-type: decimal !important;
+}
+
+.quill-content li {
+    margin-bottom: 0.5rem !important;
+}
+
+.quill-content blockquote {
+    border-left: 4px solid var(--primary-500) !important;
+    background: #f8fafc;
+    padding: 1.5rem 2rem !important;
+    margin: 2rem 0 !important;
+    font-style: italic;
+    color: #475569;
+}
+
+/* Base Quill Overrides */
+.ql-editor {
+    min-height: 180px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+#editor-container .ql-editor {
+    min-height: 400px;
+}
+
+.ql-toolbar.ql-snow {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.ql-container.ql-snow {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-color: #e2e8f0;
+}
+
+/* Animations */
+.fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.blur-in {
+    animation: blurIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes blurIn {
+    from {
+        filter: blur(20px);
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        filter: blur(0);
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
