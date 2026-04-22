@@ -5,7 +5,7 @@
 
 # ICT Management System
 
-This system provides a centralized dashboard for managing ICT operations within the hotel environment. It is designed to streamline infrastructure monitoring, incident management, and automated maintenance workflows.
+This system provides a centralized dashboard for managing ICT operations within all busines , hotel , hospital , retail stores  environment. It is designed to streamline infrastructure monitoring, incident management, and automated maintenance workflows.
 
 ---
 
