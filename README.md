@@ -3,7 +3,7 @@
 <img width="1900" height="964" alt="image" src="https://github.com/user-attachments/assets/0e77d279-f2e9-4366-b548-0ea7c0a88c30" />
 
 
-# Dallas Premiere Hotel - ICT Management System
+# ICT Management System
 
 This system provides a centralized dashboard for managing ICT operations within the hotel environment. It is designed to streamline infrastructure monitoring, incident management, and automated maintenance workflows.
 
@@ -57,4 +57,4 @@ Users are automatically directed to the interface corresponding to their role up
 
 ---
 
-This system is maintained by the Dallas ICT Team (2026) to ensure the operational continuity of all hotel technology services.
+This system is maintained by Harry Smart Technologies  to ensure the operational continuity of all Business technology aspects
