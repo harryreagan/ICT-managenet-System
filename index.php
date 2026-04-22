@@ -13,20 +13,27 @@ if ($_SESSION['role'] === 'staff') {
     exit();
 }
 
+$hasQuickNotesTable = false;
+try {
+    $hasQuickNotesTable = $pdo->query("SHOW TABLES LIKE 'quick_notes'")->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasQuickNotesTable = false;
+}
+
 // --- POST HANDLERS ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
-        if ($_POST['action'] === 'add_note') {
+        if ($_POST['action'] === 'add_note' && $hasQuickNotesTable) {
             $stmt = $pdo->prepare("INSERT INTO quick_notes (user_id, content) VALUES (?, ?)");
             $stmt->execute([$_SESSION['user_id'], $_POST['note_content']]);
             exit();
         }
-        if ($_POST['action'] === 'toggle_note') {
+        if ($_POST['action'] === 'toggle_note' && $hasQuickNotesTable) {
             $stmt = $pdo->prepare("UPDATE quick_notes SET is_done = NOT is_done WHERE id = ? AND user_id = ?");
             $stmt->execute([$_POST['note_id'], $_SESSION['user_id']]);
             exit();
         }
-        if ($_POST['action'] === 'delete_note') {
+        if ($_POST['action'] === 'delete_note' && $hasQuickNotesTable) {
             $stmt = $pdo->prepare("DELETE FROM quick_notes WHERE id = ? AND user_id = ?");
             $stmt->execute([$_POST['note_id'], $_SESSION['user_id']]);
             exit();
@@ -286,9 +293,12 @@ if (!$guestWifi) {
 }
 
 // 31. Quick Notes for Current User
-$stmt = $pdo->prepare("SELECT * FROM quick_notes WHERE user_id = ? ORDER BY is_done ASC, created_at DESC");
-$stmt->execute([$_SESSION['user_id']]);
-$userNotes = $stmt->fetchAll();
+$userNotes = [];
+if ($hasQuickNotesTable) {
+    $stmt = $pdo->prepare("SELECT * FROM quick_notes WHERE user_id = ? ORDER BY is_done ASC, created_at DESC");
+    $stmt->execute([$_SESSION['user_id']]);
+    $userNotes = $stmt->fetchAll();
+}
 
 // 32. Facility Health Summary
 $facilityStats = ['total' => 0, 'faulty' => 0, 'warning' => 0];

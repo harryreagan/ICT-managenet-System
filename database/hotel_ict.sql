@@ -128,12 +128,15 @@ CREATE TABLE IF NOT EXISTS troubleshooting_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     status ENUM('open', 'in_progress', 'resolved', 'closed') DEFAULT 'open',
+    visibility ENUM('public', 'internal') DEFAULT 'public',
     priority ENUM('low', 'medium', 'high', 'critical') DEFAULT 'medium',
     system_affected VARCHAR(100),
+    requester_username VARCHAR(100),
     symptoms TEXT,
     root_cause TEXT,
     steps_taken TEXT,
     resolution TEXT,
+    solution_image VARCHAR(255),
     technician_name VARCHAR(100),
     assigned_to VARCHAR(100),
     incident_date DATE,
@@ -155,6 +158,10 @@ CREATE TABLE IF NOT EXISTS maintenance_tasks (
     is_recurring BOOLEAN DEFAULT FALSE,
     frequency ENUM('daily', 'weekly', 'monthly', 'quarterly', 'yearly'),
     next_due_date DATE,
+    start_time DATETIME,
+    end_time DATETIME,
+    show_on_portal TINYINT(1) DEFAULT 0,
+    impact ENUM('none', 'low', 'medium', 'high', 'outage') DEFAULT 'none',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -277,7 +284,21 @@ CREATE TABLE IF NOT EXISTS sop_documents (
     content TEXT,
     version VARCHAR(20) DEFAULT '1.0',
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    author VARCHAR(100)
+    author VARCHAR(100),
+    image_path VARCHAR(255),
+    visibility ENUM('public', 'private') DEFAULT 'public'
+);
+
+-- Quick Notes / Personal To-Do
+CREATE TABLE IF NOT EXISTS quick_notes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT DEFAULT NULL,
+    content TEXT NOT NULL,
+    is_done TINYINT(1) DEFAULT 0,
+    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- IT Inventory & Consumables

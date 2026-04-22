@@ -6,9 +6,22 @@ $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
 $per_page = 6;
 $offset = ($page - 1) * $per_page;
 
-// Determine visibility based on role
+// Determine visibility based on role and available columns.
 $is_staff = in_array($_SESSION['role'], ['admin', 'manager', 'tech_support']);
-$visibility_sql = $is_staff ? "" : "AND visibility = 'public'";
+$hasVisibility = false;
+$hasSolutionImage = false;
+
+try {
+    $hasVisibility = $pdo->query("SHOW COLUMNS FROM troubleshooting_logs LIKE 'visibility'")->rowCount() > 0;
+    $hasSolutionImage = $pdo->query("SHOW COLUMNS FROM troubleshooting_logs LIKE 'solution_image'")->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasVisibility = false;
+    $hasSolutionImage = false;
+}
+
+$visibility_sql = (!$is_staff && $hasVisibility) ? "AND visibility = 'public'" : "";
+$solutionImageSelect = $hasSolutionImage ? "solution_image" : "NULL AS solution_image";
+$visibilitySelect = $hasVisibility ? "visibility" : "'public' AS visibility";
 
 try {
     // Count total verified solutions for pagination
@@ -23,10 +36,10 @@ try {
 
     // Fetch Resolved Incidents with search filter and pagination
     if ($search) {
-        $stmt = $pdo->prepare("SELECT id, title, symptoms, system_affected, solution_image, created_at, technician_name, visibility FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') $visibility_sql AND (title LIKE ? OR symptoms LIKE ? OR system_affected LIKE ?) ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt = $pdo->prepare("SELECT id, title, symptoms, system_affected, {$solutionImageSelect}, created_at, technician_name, {$visibilitySelect} FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') $visibility_sql AND (title LIKE ? OR symptoms LIKE ? OR system_affected LIKE ?) ORDER BY created_at DESC LIMIT ? OFFSET ?");
         $stmt->execute(["%$search%", "%$search%", "%$search%", $per_page, $offset]);
     } else {
-        $stmt = $pdo->prepare("SELECT id, title, symptoms, system_affected, solution_image, created_at, technician_name, visibility FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') $visibility_sql ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt = $pdo->prepare("SELECT id, title, symptoms, system_affected, {$solutionImageSelect}, created_at, technician_name, {$visibilitySelect} FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') $visibility_sql ORDER BY created_at DESC LIMIT ? OFFSET ?");
         $stmt->execute([$per_page, $offset]);
     }
     $solutions = $stmt->fetchAll();

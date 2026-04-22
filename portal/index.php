@@ -17,12 +17,46 @@ $announcements = $stmt->fetchAll();
 $stmt = $pdo->query("SELECT * FROM sop_documents ORDER BY last_updated DESC LIMIT 4");
 $recent_sops = $stmt->fetchAll();
 
-// Fetch Upcoming Maintenance for Dashboard Widget
-$stmt = $pdo->query("SELECT * FROM maintenance_tasks 
-                    WHERE show_on_portal = 1 
-                    AND (status != 'completed' OR (end_time IS NOT NULL AND end_time > NOW()))
-                    ORDER BY COALESCE(start_time, next_due_date) ASC LIMIT 2");
-$upcoming_maintenance = $stmt->fetchAll();
+// Fetch Upcoming Maintenance for Dashboard Widget using only columns this schema actually has.
+try {
+    $maintenanceColumns = $pdo->query("SHOW COLUMNS FROM maintenance_tasks")->fetchAll(PDO::FETCH_COLUMN);
+    $hasShowOnPortal = in_array('show_on_portal', $maintenanceColumns, true);
+    $hasStatus = in_array('status', $maintenanceColumns, true);
+    $hasEndTime = in_array('end_time', $maintenanceColumns, true);
+    $hasStartTime = in_array('start_time', $maintenanceColumns, true);
+    $hasNextDueDate = in_array('next_due_date', $maintenanceColumns, true);
+
+    $whereClauses = [];
+    if ($hasShowOnPortal) {
+        $whereClauses[] = "show_on_portal = 1";
+    }
+    if ($hasStatus && $hasEndTime) {
+        $whereClauses[] = "(status != 'completed' OR (end_time IS NOT NULL AND end_time > NOW()))";
+    } elseif ($hasStatus) {
+        $whereClauses[] = "status != 'completed'";
+    }
+
+    if ($hasStartTime && $hasNextDueDate) {
+        $orderBy = "COALESCE(start_time, next_due_date) ASC";
+    } elseif ($hasStartTime) {
+        $orderBy = "start_time ASC";
+    } elseif ($hasNextDueDate) {
+        $orderBy = "next_due_date ASC";
+    } else {
+        $orderBy = "id DESC";
+    }
+
+    $maintenanceSql = "SELECT * FROM maintenance_tasks";
+    if (!empty($whereClauses)) {
+        $maintenanceSql .= " WHERE " . implode(" AND ", $whereClauses);
+    }
+    $maintenanceSql .= " ORDER BY {$orderBy} LIMIT 2";
+
+    $stmt = $pdo->query($maintenanceSql);
+    $upcoming_maintenance = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $upcoming_maintenance = [];
+}
 ?>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -458,8 +492,11 @@ $upcoming_maintenance = $stmt->fetchAll();
                 <?php else: ?>
                     <?php foreach ($upcoming_maintenance as $maint): ?>
                         <?php
-                        $m_start = $maint['start_time'] ? new DateTime($maint['start_time']) : ($maint['next_due_date'] ? new DateTime($maint['next_due_date']) : null);
-                        $impactColor = match ($maint['impact']) {
+                        $startTime = $maint['start_time'] ?? null;
+                        $nextDueDate = $maint['next_due_date'] ?? null;
+                        $m_start = $startTime ? new DateTime($startTime) : ($nextDueDate ? new DateTime($nextDueDate) : null);
+                        $impact = $maint['impact'] ?? 'none';
+                        $impactColor = match ($impact) {
                             'outage' => 'red',
                             'high' => 'orange',
                             'medium' => 'amber',
@@ -469,7 +506,7 @@ $upcoming_maintenance = $stmt->fetchAll();
                         <div class="p-3 rounded-lg border border-<?= $impactColor ?>-50 bg-<?= $impactColor ?>-50/30">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-[9px] font-black uppercase tracking-widest text-<?= $impactColor ?>-600">
-                                    <?= str_replace('_', ' ', $maint['impact']) ?>
+                                    <?= str_replace('_', ' ', $impact) ?>
                                 </span>
                                 <span class="text-[9px] font-bold text-slate-400">
                                     <?= $m_start ? $m_start->format('M d, H:i') : 'TBD' ?>

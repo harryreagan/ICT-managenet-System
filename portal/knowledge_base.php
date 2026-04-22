@@ -7,23 +7,40 @@ $fix_page = isset($_GET['fix_page']) ? max(1, (int) $_GET['fix_page']) : 1;
 $per_page = 6;
 $sop_offset = ($sop_page - 1) * $per_page;
 $fix_offset = ($fix_page - 1) * $per_page;
+$sop_visibility_filter = '';
+$troubleshootingHasSolutionImage = false;
+
+try {
+    $sopHasVisibility = $pdo->query("SHOW COLUMNS FROM sop_documents LIKE 'visibility'")->rowCount() > 0;
+    if ($sopHasVisibility) {
+        $sop_visibility_filter = "visibility = 'public' AND ";
+    }
+} catch (PDOException $e) {
+    $sop_visibility_filter = '';
+}
+
+try {
+    $troubleshootingHasSolutionImage = $pdo->query("SHOW COLUMNS FROM troubleshooting_logs LIKE 'solution_image'")->rowCount() > 0;
+} catch (PDOException $e) {
+    $troubleshootingHasSolutionImage = false;
+}
 
 // Count total SOPs for pagination
 if ($search) {
-    $sop_count_stmt = $pdo->prepare("SELECT COUNT(*) FROM sop_documents WHERE visibility = 'public' AND (title LIKE ? OR content LIKE ? OR category LIKE ?)");
+    $sop_count_stmt = $pdo->prepare("SELECT COUNT(*) FROM sop_documents WHERE {$sop_visibility_filter}(title LIKE ? OR content LIKE ? OR category LIKE ?)");
     $sop_count_stmt->execute(["%$search%", "%$search%", "%$search%"]);
 } else {
-    $sop_count_stmt = $pdo->query("SELECT COUNT(*) FROM sop_documents WHERE visibility = 'public'");
+    $sop_count_stmt = $pdo->query("SELECT COUNT(*) FROM sop_documents" . ($sop_visibility_filter ? " WHERE " . rtrim($sop_visibility_filter, ' AND ') : ""));
 }
 $total_sops = $sop_count_stmt->fetchColumn();
 $total_sop_pages = ceil($total_sops / $per_page);
 
 // Fetch SOPs with search filter, public visibility, and pagination
 if ($search) {
-    $stmt = $pdo->prepare("SELECT * FROM sop_documents WHERE visibility = 'public' AND (title LIKE ? OR content LIKE ? OR category LIKE ? ) ORDER BY category ASC, title ASC LIMIT ? OFFSET ?");
+    $stmt = $pdo->prepare("SELECT * FROM sop_documents WHERE {$sop_visibility_filter}(title LIKE ? OR content LIKE ? OR category LIKE ? ) ORDER BY category ASC, title ASC LIMIT ? OFFSET ?");
     $stmt->execute(["%$search%", "%$search%", "%$search%", $per_page, $sop_offset]);
 } else {
-    $stmt = $pdo->prepare("SELECT * FROM sop_documents WHERE visibility = 'public' ORDER BY category ASC, title ASC LIMIT ? OFFSET ?");
+    $stmt = $pdo->prepare("SELECT * FROM sop_documents" . ($sop_visibility_filter ? " WHERE " . rtrim($sop_visibility_filter, ' AND ') : "") . " ORDER BY category ASC, title ASC LIMIT ? OFFSET ?");
     $stmt->execute([$per_page, $sop_offset]);
 }
 $docs = $stmt->fetchAll();
@@ -39,11 +56,12 @@ $total_fixes = $fix_count_stmt->fetchColumn();
 $total_fix_pages = ceil($total_fixes / $per_page);
 
 // Fetch Resolved Incidents (Public Knowledge Base) with search filter and pagination
+$fixSelect = "id, title, symptoms, system_affected, " . ($troubleshootingHasSolutionImage ? "solution_image" : "NULL AS solution_image") . ", created_at";
 if ($search) {
-    $stmt = $pdo->prepare("SELECT id, title, symptoms, system_affected, solution_image, created_at FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') AND (title LIKE ? OR symptoms LIKE ? OR system_affected LIKE ?) ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    $stmt = $pdo->prepare("SELECT {$fixSelect} FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') AND (title LIKE ? OR symptoms LIKE ? OR system_affected LIKE ?) ORDER BY created_at DESC LIMIT ? OFFSET ?");
     $stmt->execute(["%$search%", "%$search%", "%$search%", $per_page, $fix_offset]);
 } else {
-    $stmt = $pdo->prepare("SELECT id, title, symptoms, system_affected, solution_image, created_at FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    $stmt = $pdo->prepare("SELECT {$fixSelect} FROM troubleshooting_logs WHERE status IN ('resolved', 'closed') ORDER BY created_at DESC LIMIT ? OFFSET ?");
     $stmt->execute([$per_page, $fix_offset]);
 }
 $solutions = $stmt->fetchAll();

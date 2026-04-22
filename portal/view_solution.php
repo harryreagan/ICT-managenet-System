@@ -19,6 +19,8 @@ if (!$sol) {
 }
 
 renderPortalHeader("Solution: " . htmlspecialchars($sol['title']));
+
+$solutionImage = $sol['solution_image'] ?? null;
 ?>
 
 <div class="space-y-8">
@@ -88,7 +90,7 @@ renderPortalHeader("Solution: " . htmlspecialchars($sol['title']));
     </div>
 
     <!-- Solution Image -->
-    <?php if ($sol['solution_image']): ?>
+    <?php if ($solutionImage): ?>
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -101,7 +103,7 @@ renderPortalHeader("Solution: " . htmlspecialchars($sol['title']));
                 <h2 class="text-lg font-bold text-slate-800">Visual Reference</h2>
             </div>
             <div class="rounded-lg overflow-hidden border border-gray-200">
-                <img src="/ict/<?= $sol['solution_image'] ?>" alt="Solution Reference" class="w-full">
+                <img src="/ict/<?= $solutionImage ?>" alt="Solution Reference" class="w-full">
             </div>
         </div>
     <?php endif; ?>

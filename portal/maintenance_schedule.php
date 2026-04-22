@@ -1,12 +1,46 @@
 <?php
 require_once __DIR__ . '/layout.php';
 
-// Fetch upcoming maintenance tasks marked for portal
-$stmt = $pdo->query("SELECT * FROM maintenance_tasks 
-                    WHERE show_on_portal = 1 
-                    AND (status != 'completed' OR (end_time IS NOT NULL AND end_time > NOW()))
-                    ORDER BY COALESCE(start_time, next_due_date) ASC");
-$schedules = $stmt->fetchAll();
+// Fetch maintenance tasks using only columns this schema actually has.
+try {
+    $maintenanceColumns = $pdo->query("SHOW COLUMNS FROM maintenance_tasks")->fetchAll(PDO::FETCH_COLUMN);
+    $hasShowOnPortal = in_array('show_on_portal', $maintenanceColumns, true);
+    $hasStatus = in_array('status', $maintenanceColumns, true);
+    $hasEndTime = in_array('end_time', $maintenanceColumns, true);
+    $hasStartTime = in_array('start_time', $maintenanceColumns, true);
+    $hasNextDueDate = in_array('next_due_date', $maintenanceColumns, true);
+
+    $whereClauses = [];
+    if ($hasShowOnPortal) {
+        $whereClauses[] = "show_on_portal = 1";
+    }
+    if ($hasStatus && $hasEndTime) {
+        $whereClauses[] = "(status != 'completed' OR (end_time IS NOT NULL AND end_time > NOW()))";
+    } elseif ($hasStatus) {
+        $whereClauses[] = "status != 'completed'";
+    }
+
+    if ($hasStartTime && $hasNextDueDate) {
+        $orderBy = "COALESCE(start_time, next_due_date) ASC";
+    } elseif ($hasStartTime) {
+        $orderBy = "start_time ASC";
+    } elseif ($hasNextDueDate) {
+        $orderBy = "next_due_date ASC";
+    } else {
+        $orderBy = "id DESC";
+    }
+
+    $maintenanceSql = "SELECT * FROM maintenance_tasks";
+    if (!empty($whereClauses)) {
+        $maintenanceSql .= " WHERE " . implode(" AND ", $whereClauses);
+    }
+    $maintenanceSql .= " ORDER BY {$orderBy}";
+
+    $stmt = $pdo->query($maintenanceSql);
+    $schedules = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $schedules = [];
+}
 
 renderPortalHeader("Maintenance Schedule");
 
@@ -69,9 +103,13 @@ function getImpactLabel($impact)
         <div class="space-y-6">
             <?php foreach ($schedules as $task): ?>
                 <?php
-                $start = $task['start_time'] ? new DateTime($task['start_time']) : ($task['next_due_date'] ? new DateTime($task['next_due_date']) : null);
-                $end = $task['end_time'] ? new DateTime($task['end_time']) : null;
-                $isLive = $task['status'] === 'in_progress' || ($start && $start < new DateTime() && (!$end || $end > new DateTime()));
+                $startTime = $task['start_time'] ?? null;
+                $nextDueDate = $task['next_due_date'] ?? null;
+                $endTime = $task['end_time'] ?? null;
+                $status = $task['status'] ?? '';
+                $start = $startTime ? new DateTime($startTime) : ($nextDueDate ? new DateTime($nextDueDate) : null);
+                $end = $endTime ? new DateTime($endTime) : null;
+                $isLive = $status === 'in_progress' || ($start && $start < new DateTime() && (!$end || $end > new DateTime()));
                 ?>
                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden relative">
                     <?php if ($isLive): ?>
@@ -110,8 +148,8 @@ function getImpactLabel($impact)
                         <div class="flex-grow p-6">
                             <div class="flex flex-wrap items-center gap-3 mb-4">
                                 <span
-                                    class="px-3 py-1 <?= getImpactBadge($task['impact']) ?> text-xs font-bold uppercase tracking-wider rounded-full">
-                                    <?= getImpactLabel($task['impact']) ?>
+                                    class="px-3 py-1 <?= getImpactBadge($task['impact'] ?? 'none') ?> text-xs font-bold uppercase tracking-wider rounded-full">
+                                    <?= getImpactLabel($task['impact'] ?? 'none') ?>
                                 </span>
                                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
                                     #<?= str_pad($task['id'], 3, '0', STR_PAD_LEFT) ?>
@@ -142,7 +180,7 @@ function getImpactLabel($impact)
                                 <div class="ml-auto text-right">
                                     <p class="text-xs text-slate-500 mb-1">Status</p>
                                     <span class="text-xs font-bold text-slate-900 uppercase bg-gray-100 px-3 py-1 rounded-lg">
-                                        <?= str_replace('_', ' ', $task['status']) ?>
+                                        <?= str_replace('_', ' ', $status ?: 'scheduled') ?>
                                     </span>
                                 </div>
                             </div>
