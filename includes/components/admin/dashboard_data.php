@@ -8,6 +8,13 @@
 function getAdminDashboardData($pdo)
 {
     $data = [];
+    $hasQuickNotesTable = false;
+
+    try {
+        $hasQuickNotesTable = $pdo->query("SHOW TABLES LIKE 'quick_notes'")->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasQuickNotesTable = false;
+    }
 
     // 1. Open Incidents Count
     $stmt = $pdo->query("SELECT COUNT(*) FROM troubleshooting_logs WHERE status IN ('open', 'in_progress')");
@@ -199,9 +206,12 @@ function getAdminDashboardData($pdo)
     $data['newKbArticles'] = $stmt->fetchColumn();
 
     // 31. Quick Notes for Current User
-    $stmt = $pdo->prepare("SELECT * FROM quick_notes WHERE user_id = ? ORDER BY is_done ASC, created_at DESC");
-    $stmt->execute([$_SESSION['user_id']]);
-    $data['userNotes'] = $stmt->fetchAll();
+    $data['userNotes'] = [];
+    if ($hasQuickNotesTable) {
+        $stmt = $pdo->prepare("SELECT * FROM quick_notes WHERE user_id = ? ORDER BY is_done ASC, created_at DESC");
+        $stmt->execute([$_SESSION['user_id']]);
+        $data['userNotes'] = $stmt->fetchAll();
+    }
 
     // VLANs for Quick Access
     $vlanStmt = $pdo->query("SELECT * FROM networks WHERE vlan_tag IS NOT NULL ORDER BY vlan_tag ASC");

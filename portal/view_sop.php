@@ -9,7 +9,17 @@ if (!$id) {
 }
 
 // Fetch SOP Details
-$stmt = $pdo->prepare("SELECT * FROM sop_documents WHERE id = ? AND visibility = 'public'");
+$sop_visibility_filter = '';
+try {
+    $sopHasVisibility = $pdo->query("SHOW COLUMNS FROM sop_documents LIKE 'visibility'")->rowCount() > 0;
+    if ($sopHasVisibility) {
+        $sop_visibility_filter = " AND visibility = 'public'";
+    }
+} catch (PDOException $e) {
+    $sop_visibility_filter = '';
+}
+
+$stmt = $pdo->prepare("SELECT * FROM sop_documents WHERE id = ?{$sop_visibility_filter}");
 $stmt->execute([$id]);
 $sop = $stmt->fetch();
 
