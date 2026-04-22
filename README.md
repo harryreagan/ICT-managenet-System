@@ -1,3 +1,8 @@
+<img width="1869" height="905" alt="image" src="https://github.com/user-attachments/assets/ad2eb853-c106-4632-9a32-c25947967f6f" />
+<img width="1909" height="907" alt="image" src="https://github.com/user-attachments/assets/c7b31610-d0b6-431b-a37d-4c67570548c8" />
+<img width="1900" height="964" alt="image" src="https://github.com/user-attachments/assets/0e77d279-f2e9-4366-b548-0ea7c0a88c30" />
+
+
 # Dallas Premiere Hotel - ICT Management System
 
 This system provides a centralized dashboard for managing ICT operations within the hotel environment. It is designed to streamline infrastructure monitoring, incident management, and automated maintenance workflows.
